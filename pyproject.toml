@@ -1,0 +1,23 @@
+[project]
+name = "market-data-warehouse"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Amir Azimi", email = "amirazimimhm@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "pandas>=3.0.5",
+    "psycopg[binary]>=3.3.5",
+    "pyarrow>=25.0.1",
+    "pytest>=9.1.1",
+    "sqlalchemy>=2.0.52",
+]
+
+[project.scripts]
+market-data-warehouse = "market_data_warehouse:main"
+
+[build-system]
+requires = ["uv_build>=0.12.10,<0.13.0"]
+build-backend = "uv_build"
