@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.ipynb_checkpoints/
+.pytest_cache/
+*.egg-info/
+
+# Data — keep raw and generated data out of git
+data/raw/*
+data/interim/*
+data/processed/*
+!data/**/.gitkeep
+*.csv
+*.parquet
+*.db
+*.sqlite
+
+# Outputs
+outputs/*
+!outputs/.gitkeep
+*.png
+!docs/figures/*.png
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
