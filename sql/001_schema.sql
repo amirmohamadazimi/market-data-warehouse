@@ -7,10 +7,10 @@ CREATE TABLE IF NOT EXISTS symbols (
     market      TEXT NOT NULL CHECK (market IN ('TSE', 'GLOBAL')),
     sector      TEXT,
     currency    TEXT,
-    slug        TEXT,
-    vendor_id   NUMERIC,
+    slug        TEXT NOT NULL UNIQUE,
+    vendor_id   TEXT NOT NULL,
     is_active   BOOLEAN NOT NULL DEFAULT TRUE,
-    UNIQUE (ticker, market)
+    UNIQUE (market, vendor_id)
 );
 
 CREATE TABLE IF NOT EXISTS daily_bars (
