@@ -7,8 +7,13 @@ CREATE TABLE IF NOT EXISTS symbols (
     market      TEXT NOT NULL CHECK (market IN ('TSE', 'GLOBAL')),
     sector      TEXT,
     currency    TEXT,
+<<<<<<< HEAD
     slug        TEXT NOT NULL UNIQUE,
     vendor_id   TEXT NOT NULL,
+=======
+    slug        TEXT,
+    vendor_id   NUMERIC,
+>>>>>>> 7240827dc604bbf0a9e4e39e198775f4447919c7
     is_active   BOOLEAN NOT NULL DEFAULT TRUE,
     UNIQUE (market, vendor_id)
 );
