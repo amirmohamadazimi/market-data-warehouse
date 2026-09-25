@@ -37,7 +37,7 @@ queried identically.
 Tables:
 
 - `symbols` — one row per instrument: ticker, name, market (`TSE` / `GLOBAL`), sector, currency, is_active
-- `daily_bars` — `(symbol_id, date)` primary key; open, high, low, close, adj_close, volume, value, trade_count
+- `daily_bars` — `(symbol_id, date)` primary key; open, high, low, close, volume, value, trade_count, final_price, prev_final, source, ingested_at
 - `corporate_actions` — splits, dividends, capital increases; used to build the adjusted series
 
 Indexes on `(symbol_id, date)` and `(date)`.

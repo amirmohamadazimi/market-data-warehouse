@@ -18,10 +18,13 @@ CREATE TABLE IF NOT EXISTS daily_bars (
     high        NUMERIC,
     low         NUMERIC,
     close       NUMERIC,
-    adj_close   NUMERIC,
     volume      BIGINT,
     value       NUMERIC,
     trade_count INTEGER,
+    final_price NUMERIC,         -- TSE closing (final) price; NULL for GLOBAL
+    prev_final  NUMERIC,         -- TSE previous final price; NULL for GLOBAL
+    source      TEXT        NOT NULL,               -- adapter that loaded the row
+    ingested_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (symbol_id, date)
 );
 
