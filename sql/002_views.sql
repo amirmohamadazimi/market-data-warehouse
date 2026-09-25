@@ -3,7 +3,7 @@
 
 -- TODO: adjusted close built from corporate_actions.
 CREATE OR REPLACE VIEW v_adjusted_prices AS
-SELECT symbol_id, date, adj_close AS price
+SELECT symbol_id, date, COALESCE(final_price, close) AS price
 FROM daily_bars;
 
 -- TODO: simple and log returns via LAG().
