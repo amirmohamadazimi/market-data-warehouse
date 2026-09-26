@@ -13,7 +13,6 @@ data/raw/*
 data/interim/*
 data/processed/*
 !data/**/.gitkeep
-*.csv
 *.parquet
 *.db
 *.sqlite
