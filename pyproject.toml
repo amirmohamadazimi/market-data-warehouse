@@ -13,6 +13,7 @@ dependencies = [
     "psycopg[binary]>=3.3.5",
     "pyarrow>=25.0.1",
     "pytest>=9.1.1",
+    "python-dotenv>=1.2.3",
     "pytse-client>=0.19.1",
     "sqlalchemy>=2.0.52",
     "yfinance>=1.7.0",
