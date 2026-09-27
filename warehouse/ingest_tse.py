@@ -5,7 +5,7 @@ def fetch_daily_bars(ticker: str, since: str):
     """Fetch daily bars for one TSE ticker from `since` onward.
 
     Returns a DataFrame normalised to the shared schema:
-    date, open, high, low, close, adj_close, volume, value, trade_count.
+    date, open, high, low, close, volume, value, trade_count, final_price, prev_final.
     """
     raise NotImplementedError
 

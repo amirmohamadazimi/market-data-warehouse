@@ -7,7 +7,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(prog="warehouse")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    sub.add_parser("init", help="create schema and views")
+    sub.add_parser("init", help="create schema and views, load symbols.csv")
 
     p_update = sub.add_parser("update", help="incrementally fetch new bars")
     p_update.add_argument("--since", default="2020-01-01")
@@ -20,6 +20,17 @@ def main() -> None:
     p_symbols.add_argument("--market", choices=["TSE", "GLOBAL"])
 
     args = parser.parse_args()
+
+    if args.command == "init":
+        from .db import get_engine, init_schema
+        from .symbols import SYMBOLS_CSV, seed_symbols
+
+        engine = get_engine()
+        init_schema(engine)
+        n = seed_symbols(engine, SYMBOLS_CSV)
+        print(f"schema ready, {n} symbols upserted from {SYMBOLS_CSV.name}")
+        return
+
     raise NotImplementedError(f"command: {args.command}")
 
 

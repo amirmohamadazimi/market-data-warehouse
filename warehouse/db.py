@@ -1,8 +1,12 @@
 """Engine, session and schema helpers."""
 
+from pathlib import Path
+
 from sqlalchemy import create_engine
 
 from .config import DATABASE_URL
+
+SQL_DIR = Path(__file__).resolve().parent.parent / "sql"
 
 
 def get_engine():
@@ -12,7 +16,9 @@ def get_engine():
 
 def init_schema(engine) -> None:
     """Execute sql/001_schema.sql then sql/002_views.sql. Must be re-runnable."""
-    raise NotImplementedError
+    with engine.begin() as conn:
+        for name in ("001_schema.sql", "002_views.sql"):
+            conn.exec_driver_sql((SQL_DIR / name).read_text(encoding="utf-8"))
 
 
 def last_date_for(engine, symbol_id: int):
