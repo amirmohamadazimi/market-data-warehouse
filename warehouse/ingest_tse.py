@@ -1,15 +1,16 @@
-"""Tehran Stock Exchange ingestion (finpy-tse or pytse-client)."""
+"""Tehran Stock Exchange fetcher (pytse-client). Needs a route to tsetmc.com (split tunneling)."""
+
+import pandas as pd
 
 
-def fetch_daily_bars(ticker: str, since: str):
-    """Fetch daily bars for one TSE ticker from `since` onward.
+def fetch_tse(ticker: str) -> pd.DataFrame:
+    """Full unadjusted daily history for one TSE ticker, as pytse-client returns it (F1, F2).
 
-    Returns a DataFrame normalised to the shared schema:
-    date, open, high, low, close, volume, value, trade_count, final_price, prev_final.
+    Form may change (date as a column); meaning may not: keep every column, keep
+    pytse's own names (adjClose stays adjClose). Must match the files already in
+    data/raw/tse/, so `load` reads old and new snapshots the same way.
     """
-    raise NotImplementedError
+    import pytse_client
 
-
-def fetch_corporate_actions(ticker: str):
-    """Fetch splits / capital increases / dividends for one TSE ticker."""
-    raise NotImplementedError
+    # adjust=False: raw prices; adjusting happens in the views, never at fetch time.
+    return pytse_client.download(symbols=ticker, adjust=False)[ticker]

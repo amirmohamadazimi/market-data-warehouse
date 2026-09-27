@@ -8,6 +8,11 @@ RAW_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
 SOURCE_FOR_MARKET = {"TSE": "tse", "GLOBAL": "yfinance"}
 
 
+def snapshot_path(source: str, slug: str, fetch_date: str) -> Path:
+    """Where fetch writes one symbol's file for one day (F3)."""
+    return RAW_DIR / source / fetch_date / f"{slug}.parquet"
+
+
 def latest_snapshot(source: str, slug: str) -> Path | None:
     """Path of the newest fetch_date folder's file for this symbol, or None (L1)."""
     source_dir = RAW_DIR / source

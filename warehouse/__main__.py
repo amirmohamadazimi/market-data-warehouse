@@ -13,6 +13,9 @@ def main() -> None:
     p_update.add_argument("--since", default="2020-01-01")
     p_update.add_argument("--market", choices=["TSE", "GLOBAL", "ALL"], default="ALL")
 
+    p_fetch = sub.add_parser("fetch", help="download full histories into today's raw snapshot")
+    p_fetch.add_argument("--market", choices=["TSE", "GLOBAL", "ALL"], default="ALL")
+
     sub.add_parser("load", help="load the latest raw snapshots into daily_bars (offline)")
 
     sub.add_parser("check", help="run data-quality checks")
@@ -31,6 +34,13 @@ def main() -> None:
         init_schema(engine)
         n = seed_symbols(engine, SYMBOLS_CSV)
         print(f"schema ready, {n} symbols upserted from {SYMBOLS_CSV.name}")
+        return
+
+    if args.command == "fetch":
+        from .db import get_engine
+        from .fetch import fetch_all
+
+        fetch_all(get_engine(), args.market)
         return
 
     if args.command == "load":
