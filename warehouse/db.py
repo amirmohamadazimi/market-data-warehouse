@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
 from .config import DATABASE_URL
 
@@ -27,5 +27,25 @@ def last_date_for(engine, symbol_id: int):
 
 
 def upsert_bars(engine, rows) -> int:
-    """INSERT ... ON CONFLICT DO NOTHING. Return the number of rows actually inserted."""
-    raise NotImplementedError
+    """Upsert a DataFrame of bars into daily_bars (L3).
+
+    ON CONFLICT (symbol_id, date) DO UPDATE only when a value actually differs,
+    so a rerun on identical data touches nothing. Return rows inserted or changed.
+    """
+    if rows.empty:
+        return 0
+    cols = list(rows.columns)
+    values = [c for c in cols if c not in ("symbol_id", "date")]
+    stmt = text(f"""
+        INSERT INTO daily_bars ({", ".join(cols)})
+        VALUES ({", ".join(f":{c}" for c in cols)})
+        ON CONFLICT (symbol_id, date) DO UPDATE SET
+            {", ".join(f"{c} = EXCLUDED.{c}" for c in values)},
+            ingested_at = NOW()
+        WHERE ({", ".join(f"daily_bars.{c}" for c in values)})
+            IS DISTINCT FROM ({", ".join(f"EXCLUDED.{c}" for c in values)})
+    """)
+    rows = rows.astype(object).where(rows.notna(), None)  # NaN -> NULL, not NUMERIC 'NaN'
+    with engine.begin() as conn:
+        result = conn.execute(stmt, rows.to_dict("records"))
+    return result.rowcount

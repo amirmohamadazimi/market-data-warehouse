@@ -8,7 +8,14 @@ SYMBOLS_CSV = Path(__file__).resolve().parent.parent / "symbols.csv"
 
 
 def seed_symbols(engine, csv_path: Path) -> int:
-    df = pd.read_csv(csv_path, dtype=str, sep=",")
+    """Upsert the symbol universe from symbols.csv into the symbols table.
+
+    Persian text is normalized (Arabic kaf/yeh -> Persian forms) and empty cells
+    become NULL. Rows are matched on (market, vendor_id): new ones are inserted,
+    existing ones have ticker, name, sector, currency, slug and is_active updated.
+    Safe to re-run. Returns the number of CSV rows processed.
+    """
+    df =pd.read_csv(csv_path, dtype=str, sep=",")
     df = df.map(lambda x: normalize_fa(x) if isinstance(x, str) else x)
 
     df = df.astype(object).where(df.notna(), None)  # empty cells -> NULL, not NaN
