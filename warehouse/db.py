@@ -26,26 +26,39 @@ def last_date_for(engine, symbol_id: int):
     raise NotImplementedError
 
 
-def upsert_bars(engine, rows) -> int:
-    """Upsert a DataFrame of bars into daily_bars (L3).
+def _upsert(engine, table: str, key: tuple, rows, extra_set: str = "") -> int:
+    """INSERT rows; on a key conflict UPDATE only when a non-key value differs.
 
-    ON CONFLICT (symbol_id, date) DO UPDATE only when a value actually differs,
-    so a rerun on identical data touches nothing. Return rows inserted or changed.
+    Column names come from our own code (never from data); values go in as :params.
     """
     if rows.empty:
         return 0
     cols = list(rows.columns)
-    values = [c for c in cols if c not in ("symbol_id", "date")]
+    values = [c for c in cols if c not in key]
     stmt = text(f"""
-        INSERT INTO daily_bars ({", ".join(cols)})
+        INSERT INTO {table} ({", ".join(cols)})
         VALUES ({", ".join(f":{c}" for c in cols)})
-        ON CONFLICT (symbol_id, date) DO UPDATE SET
-            {", ".join(f"{c} = EXCLUDED.{c}" for c in values)},
-            ingested_at = NOW()
-        WHERE ({", ".join(f"daily_bars.{c}" for c in values)})
+        ON CONFLICT ({", ".join(key)}) DO UPDATE SET
+            {", ".join(f"{c} = EXCLUDED.{c}" for c in values)}{extra_set}
+        WHERE ({", ".join(f"{table}.{c}" for c in values)})
             IS DISTINCT FROM ({", ".join(f"EXCLUDED.{c}" for c in values)})
     """)
     rows = rows.astype(object).where(rows.notna(), None)  # NaN -> NULL, not NUMERIC 'NaN'
     with engine.begin() as conn:
         result = conn.execute(stmt, rows.to_dict("records"))
     return result.rowcount
+
+
+def upsert_bars(engine, rows) -> int:
+    """Upsert a DataFrame of bars into daily_bars (L3).
+
+    ON CONFLICT (symbol_id, date) DO UPDATE only when a value actually differs,
+    so a rerun on identical data touches nothing. Return rows inserted or changed.
+    """
+    return _upsert(engine, "daily_bars", ("symbol_id", "date"), rows,
+                   extra_set=", ingested_at = NOW()")
+
+
+def upsert_actions(engine, rows) -> int:
+    """Upsert corporate actions, same rule as upsert_bars. Return rows inserted or changed."""
+    return _upsert(engine, "corporate_actions", ("symbol_id", "date", "action_type"), rows)

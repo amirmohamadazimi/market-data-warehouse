@@ -1,9 +1,9 @@
-"""Landing zone -> daily_bars. Never touches the internet (D4)."""
+"""Landing zone -> daily_bars (+ corporate_actions). Never touches the internet (D4)."""
 
 import pandas as pd
 from sqlalchemy import text
 
-from .db import upsert_bars
+from .db import upsert_actions, upsert_bars
 from .landing import SOURCE_FOR_MARKET, latest_snapshot
 
 # The shape every mapper must return (the contract), besides symbol_id and source.
@@ -32,6 +32,24 @@ def to_contract_yfinance(raw: pd.DataFrame) -> pd.DataFrame:
 MAPPERS = {"tse": to_contract_tse, "yfinance": to_contract_yfinance}
 
 
+def actions_yfinance(raw: pd.DataFrame) -> pd.DataFrame:
+    """Yahoo's dividends column -> corporate_actions rows (one per ex-date).
+
+    Splits are not loaded: yfinance's raw close is already split-adjusted, so a
+    split factor in the views would adjust those prices twice.
+    """
+    if "dividends" not in raw.columns:  # snapshots fetched before actions=True
+        return pd.DataFrame(columns=["date", "action_type", "ratio", "amount"])
+    div = raw.loc[raw["dividends"] > 0, ["date", "dividends"]]
+    return pd.DataFrame({
+        "date": div["date"], "action_type": "dividend", "ratio": None, "amount": div["dividends"],
+    })
+
+
+# TSE needs no action mapper: its events are read from prev_final in the views.
+ACTION_MAPPERS = {"yfinance": actions_yfinance}
+
+
 def load_all(engine) -> None:
     """Load the latest snapshot of every symbol in `symbols` into daily_bars."""
     with engine.connect() as conn:
@@ -44,7 +62,8 @@ def load_all(engine) -> None:
             print(f"{slug}: no file in data/raw/{source}/, skipped")
             continue
 
-        bars = MAPPERS[source](pd.read_parquet(path))
+        raw = pd.read_parquet(path)
+        bars = MAPPERS[source](raw)
         missing = set(CONTRACT) - set(bars.columns)
         if missing:
             raise ValueError(f"{source} mapper is missing columns: {sorted(missing)}")
@@ -52,3 +71,8 @@ def load_all(engine) -> None:
         bars = bars[CONTRACT].assign(symbol_id=symbol_id, source=source)
         n = upsert_bars(engine, bars)
         print(f"{slug}: {len(bars)} rows read from {path.parent.name}, {n} inserted or changed")
+
+        if source in ACTION_MAPPERS:
+            actions = ACTION_MAPPERS[source](raw).assign(symbol_id=symbol_id)
+            n = upsert_actions(engine, actions)
+            print(f"{slug}: {len(actions)} corporate actions read, {n} inserted or changed")
