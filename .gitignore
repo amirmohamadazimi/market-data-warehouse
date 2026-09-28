@@ -14,6 +14,9 @@ data/interim/*
 data/processed/*
 !data/**/.gitkeep
 *.parquet
+# The replay sample is in git on purpose (D15). Must come AFTER *.parquet:
+# gitignore uses the last rule that matches.
+!data/sample/**
 *.db
 *.sqlite
 

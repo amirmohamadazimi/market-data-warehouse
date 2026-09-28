@@ -93,8 +93,13 @@ python -m warehouse init
 ```
 
 ```bash
-python -m warehouse update --since 2020-01-01
+python -m warehouse update
 ```
+
+`update` downloads the full history, loads it, and runs the quality checks.
+**TSE needs an Iranian IP** (or split tunneling that sends `tsetmc.com` direct).
+Without one, the TSE download fails with a message and Foolad loads from the
+replay sample in `data/sample/`; the `stale_symbol` check then says how old it is.
 
 Other commands:
 
@@ -110,7 +115,7 @@ pytest
 - [ ] Real schema: `symbols`, `daily_bars`, `corporate_actions`, with PKs and `(symbol, date)` indexes
 - [ ] Incremental update — fetches only new rows, idempotent on rerun
 - [ ] SQL views: adjusted prices, simple + log returns, 20/60d rolling vol, correlation matrix
-- [ ] CLI `python -m warehouse update --since 2020-01-01`
+- [ ] CLI `python -m warehouse update`
 - [ ] Notebook that reads only from SQL, never from CSV
 - [ ] Quality checks: missing days, zero-volume days, limit-breaking jumps, duplicates
 

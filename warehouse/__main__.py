@@ -1,4 +1,8 @@
-"""CLI entry point:  python -m warehouse update --since 2020-01-01"""
+"""CLI entry point. A fresh clone needs two commands:
+
+    python -m warehouse init
+    python -m warehouse update
+"""
 
 import argparse
 import sys
@@ -22,8 +26,7 @@ def main() -> None:
 
     sub.add_parser("init", help="create schema and views, load symbols.csv and tse_price_limits.csv")
 
-    p_update = sub.add_parser("update", help="incrementally fetch new bars")
-    p_update.add_argument("--since", default="2020-01-01")
+    p_update = sub.add_parser("update", help="fetch, then load, then check (the daily command)")
     p_update.add_argument("--market", choices=["TSE", "GLOBAL", "ALL"], default="ALL")
 
     p_fetch = sub.add_parser("fetch", help="download full histories into today's raw snapshot")
@@ -50,6 +53,19 @@ def main() -> None:
         print(f"schema ready, {n} symbols upserted from {SYMBOLS_CSV.name}")
         n = seed_price_limits(engine, PRICE_LIMITS_CSV)
         print(f"{n} price limits loaded from {PRICE_LIMITS_CSV.name}")
+        return
+
+    if args.command == "update":
+        from .db import get_engine
+        from .fetch import fetch_all
+        from .load import load_all
+
+        # A blocked source (TSE without an Iranian IP) only prints a failure;
+        # load then falls back to the newest snapshot it has, or the sample.
+        engine = get_engine()
+        fetch_all(engine, args.market)
+        load_all(engine)
+        run_checks(engine)
         return
 
     if args.command == "fetch":

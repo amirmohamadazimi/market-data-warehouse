@@ -21,11 +21,6 @@ def init_schema(engine) -> None:
             conn.exec_driver_sql((SQL_DIR / name).read_text(encoding="utf-8"))
 
 
-def last_date_for(engine, symbol_id: int):
-    """Return MAX(date) already stored for a symbol, or None. Drives incremental update."""
-    raise NotImplementedError
-
-
 def _upsert(engine, table: str, key: tuple, rows, extra_set: str = "") -> int:
     """INSERT rows; on a key conflict UPDATE only when a non-key value differs.
 
