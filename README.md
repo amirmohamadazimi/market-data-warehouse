@@ -14,7 +14,7 @@ _Generated 2026-09-28 by `python -m warehouse readme` from the database._
 | Rows | 47,812 daily bars |
 | Symbols | 10 (5 TSE, 5 global); 10 with data |
 | Date range | 1993-01-29 to 2026-09-28 (34 calendar years) |
-| Last data quality run | 1 ERROR, 636 WARN |
+| Last data quality run | 0 ERROR, 636 WARN |
 
 | symbol | ticker | market | rows | first | last | analysis from |
 |---|---|---|---:|---|---|---|
@@ -137,8 +137,10 @@ Verified along the way:
 - **TSE access needs an Iranian IP** (or split tunneling that resolves and routes
   `tsetmc.com` directly). pytse-client uses `old.tsetmc.com`, which is flaky.
   Without access, TSE symbols load from the sample and `stale_symbol` says how old it is.
-- **Price-limit history is inferred** from one stock's data where no source was
-  found (6% in early 2021, 7% from late 2022 to mid 2024); pre-2009 is unknown and skipped.
+- **Price-limit history is inferred** from one stock's data (Foolad) where no source
+  was found (6% in early 2021, 7% from late 2022 to mid 2024); pre-2009 is unknown and
+  skipped. The other four TSE stocks break the table 14–26 times each in 2009 (Foolad:
+  2), so the 2009 boundary is probably wrong; those days are WARNs, not errors.
 - **TSE annualisation uses 240 days/year**, an unverified assumption: one stock's own
   count (221–231) includes its halts. Measure the market calendar once more TSE
   symbols are loaded.

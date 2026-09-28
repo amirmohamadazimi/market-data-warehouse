@@ -1,0 +1,7 @@
+# Local tool: listen on this machine only (the Symbols page can add symbols and
+# run updates), and send no usage statistics.
+[server]
+address = "localhost"
+
+[browser]
+gatherUsageStats = false

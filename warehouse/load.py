@@ -16,11 +16,15 @@ CONTRACT = [
 def to_contract_tse(raw: pd.DataFrame) -> pd.DataFrame:
     """pytse-client columns -> CONTRACT columns (L2). Mind the adjClose trap."""
     # adjClose is TSE's official final price, not a split/dividend-adjusted close.
-    return raw.rename(columns={
+    bars = raw.rename(columns={
         "adjClose": "final_price",
         "yesterday": "prev_final",
         "count": "trade_count",
-    })[CONTRACT]
+    })
+    # A listing day has no previous price, and pytse sends base 0 (shepna,
+    # 2008-06-29). 0 is not a price: store "no base" as NULL, never as 0.
+    bars["prev_final"] = bars["prev_final"].where(bars["prev_final"] > 0)
+    return bars[CONTRACT]
 
 
 def to_contract_yfinance(raw: pd.DataFrame) -> pd.DataFrame:

@@ -8,10 +8,8 @@ venv/
 .pytest_cache/
 *.egg-info/
 
-# Data — keep raw and generated data out of git
+# Data — keep fetched data out of git
 data/raw/*
-data/interim/*
-data/processed/*
 !data/**/.gitkeep
 *.parquet
 # The replay sample is in git on purpose (D15). Must come AFTER *.parquet:
@@ -20,9 +18,7 @@ data/processed/*
 *.db
 *.sqlite
 
-# Outputs
-outputs/*
-!outputs/.gitkeep
+# Images: only the README figures are tracked
 *.png
 !docs/figures/*.png
 

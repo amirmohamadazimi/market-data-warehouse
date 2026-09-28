@@ -1,14 +1,13 @@
 [project]
 name = "market-data-warehouse"
 version = "0.1.0"
-description = "Add your description here"
+description = "TSE + global daily bars in PostgreSQL: idempotent loads, SQL analytics views, data-quality checks, and a small app"
 readme = "README.md"
 authors = [
     { name = "Amir Azimi", email = "amirazimimhm@gmail.com" }
 ]
 requires-python = ">=3.12,<3.13"
 dependencies = [
-    "duckdb>=1.5.5",
     "matplotlib>=3.11.2",
     "pandas>=3.0.5",
     "psycopg[binary]>=3.3.5",
@@ -21,9 +20,7 @@ dependencies = [
     "yfinance>=1.7.0",
 ]
 
-[project.scripts]
-market-data-warehouse = "market_data_warehouse:main"
-
-[build-system]
-requires = ["uv_build>=0.12.10,<0.13.0"]
-build-backend = "uv_build"
+[tool.uv]
+# Not an installable package: everything runs from the repo root as
+# `python -m warehouse ...` and `streamlit run app.py`.
+package = false
