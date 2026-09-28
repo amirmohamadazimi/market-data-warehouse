@@ -185,21 +185,6 @@ streamlit run app.py                      # the app: explore, data health, symbo
 pytest
 ```
 
-## Scope checklist
-
-- [x] Ingestion: TSE (`pytse-client`) and global (`yfinance`) into one schema
-- [x] Real schema: `symbols`, `daily_bars`, `corporate_actions`, with PKs and `(symbol, date)` indexes
-- [x] Incremental and idempotent: full history is fetched (pytse has no start date), but only new or changed rows are written; a rerun changes nothing
-- [x] SQL views: adjusted prices, simple + log returns, 20/60d rolling vol, correlation (a SQL function, since the window is a parameter)
-- [x] CLI `python -m warehouse update`
-- [x] Reads only from SQL: a Streamlit app (`app.py`) instead of a notebook
-- [x] Quality checks: gaps, zero-volume days, limit-breaking moves, impossible prices; duplicates made impossible by the PK (tested)
-
-## Done when
-
-- [x] A stranger clones the repo, runs two commands, and has a populated database
-- [x] Every return series is computed in SQL with a window function, not in pandas
-- [x] This README shows one chart and states how many rows, symbols, and years it covers
 
 ## Stack
 
