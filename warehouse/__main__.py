@@ -36,9 +36,16 @@ def main() -> None:
 
     sub.add_parser("check", help="run data-quality checks")
 
-    p_symbols = sub.add_parser("symbols", help="manage the symbol universe")
-    p_symbols.add_argument("--add")
+    p_symbols = sub.add_parser(
+        "symbols", help="list the symbols, or add one: symbols --add فملی --market TSE --slug fameli")
+    p_symbols.add_argument("--add", metavar="TICKER", help="TSE ticker (Persian) or Yahoo ticker")
     p_symbols.add_argument("--market", choices=["TSE", "GLOBAL"])
+    p_symbols.add_argument("--slug", help="short Finglish name for files and the CLI, e.g. fameli")
+    p_symbols.add_argument("--name", help="full name (TSE: looked up if omitted)")
+    p_symbols.add_argument("--sector")
+    p_symbols.add_argument("--currency", help="default IRR for TSE, USD for GLOBAL")
+
+    sub.add_parser("sample", help="copy the newest raw snapshot of every symbol into data/sample/")
 
     args = parser.parse_args()
 
@@ -88,6 +95,38 @@ def main() -> None:
         from .db import get_engine
 
         run_checks(get_engine())
+        return
+
+    if args.command == "symbols":
+        import pandas as pd
+        from sqlalchemy import text
+
+        from .db import get_engine
+        from .symbols import SYMBOLS_CSV, add_symbol
+
+        engine = get_engine()
+        if args.add:
+            if not (args.market and args.slug):
+                parser.error("symbols --add needs --market and --slug")
+            try:
+                row = add_symbol(engine, SYMBOLS_CSV, ticker=args.add, market=args.market,
+                                 slug=args.slug, name=args.name, sector=args.sector,
+                                 currency=args.currency)
+            except ValueError as exc:
+                sys.exit(f"error: {exc}")
+            print(f"added {row['slug']} ({row['market']} {row['vendor_id']}, {row['name']}) "
+                  f"to {SYMBOLS_CSV.name} and the database; run `update` to fetch its data")
+            return
+        with engine.connect() as conn:
+            print(pd.read_sql(text("SELECT slug, ticker, market, vendor_id, name, is_active "
+                                   "FROM symbols ORDER BY market, slug"), conn).to_string(index=False))
+        return
+
+    if args.command == "sample":
+        from .landing import refresh_sample
+
+        for path in refresh_sample():
+            print(f"sample: {path}")
         return
 
     raise NotImplementedError(f"command: {args.command}")

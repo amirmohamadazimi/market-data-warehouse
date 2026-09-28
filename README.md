@@ -105,7 +105,11 @@ Other commands:
 
 ```bash
 python -m warehouse check          # run data-quality checks only
-python -m warehouse symbols --add TAPICO --market TSE
+python -m warehouse symbols        # list the symbols
+python -m warehouse symbols --add فملی --market TSE --slug fameli
+python -m warehouse symbols --add GLD --market GLOBAL --slug gld --name "SPDR Gold Shares"
+python -m warehouse sample         # refresh data/sample/ from the newest raw snapshots
+streamlit run app.py               # the app: explore, data health, symbols
 pytest
 ```
 

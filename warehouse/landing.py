@@ -34,3 +34,28 @@ def _newest_in(base: Path, source: str, slug: str) -> Path | None:
 def latest_snapshot(source: str, slug: str) -> Path | None:
     """Newest fetched file for this symbol (L1); the sample only if nothing was fetched."""
     return _newest_in(RAW_DIR, source, slug) or _newest_in(SAMPLE_DIR, source, slug)
+
+
+def refresh_sample() -> list[Path]:
+    """Replace data/sample/ with the newest raw snapshot of every symbol file.
+
+    Each file keeps its own fetch_date folder, so a stranger sees how old it is.
+    Returns the new sample paths (relative to the repo).
+    """
+    import shutil
+
+    newest: dict[tuple[str, str], Path] = {}
+    for path in sorted(RAW_DIR.glob("*/*/*.parquet")):  # sorted: later dates overwrite
+        if path.stem.endswith("_adjusted"):  # the TSE answer key (D7), not a load input
+            continue
+        newest[(path.parts[-3], path.stem)] = path
+
+    if SAMPLE_DIR.exists():
+        shutil.rmtree(SAMPLE_DIR)
+    copied = []
+    for (source, _slug), src in sorted(newest.items()):
+        dst = SAMPLE_DIR / source / src.parent.name / src.name
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dst)
+        copied.append(dst.relative_to(DATA_DIR.parent))
+    return copied

@@ -97,4 +97,25 @@ WINDOW
     w20 AS (PARTITION BY r.symbol_id ORDER BY r.date ROWS BETWEEN 19 PRECEDING AND CURRENT ROW),
     w60 AS (PARTITION BY r.symbol_id ORDER BY r.date ROWS BETWEEN 59 PRECEDING AND CURRENT ROW);
 
--- TODO: pairwise correlation matrix over a chosen window.
+-- Pairwise correlation of daily log returns over a chosen window, one row per
+-- pair (both orders, plus 1.0 on the diagonal). A function, not a view, because
+-- the window is a parameter.
+--
+-- Only dates where BOTH symbols have a return count (n_days says how many).
+-- TSE trades Sat-Wed and the US Mon-Fri, so a TSE/GLOBAL pair shares only
+-- Mon-Wed; and Tehran closes hours before New York opens, so same-day TSE/US
+-- correlation understates the real link (news reaches Tehran a day later).
+CREATE OR REPLACE FUNCTION correlation_matrix(start_date DATE, end_date DATE)
+RETURNS TABLE (slug_a TEXT, slug_b TEXT, corr DOUBLE PRECISION, n_days BIGINT)
+LANGUAGE sql STABLE AS $$
+    SELECT sa.slug, sb.slug,
+           CORR(a.log_return, b.log_return),
+           COUNT(*)
+    FROM v_returns a
+    JOIN v_returns b ON b.date = a.date
+    JOIN symbols sa ON sa.symbol_id = a.symbol_id
+    JOIN symbols sb ON sb.symbol_id = b.symbol_id
+    WHERE a.date BETWEEN start_date AND end_date
+      AND a.log_return IS NOT NULL AND b.log_return IS NOT NULL
+    GROUP BY sa.slug, sb.slug
+$$;

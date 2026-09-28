@@ -59,7 +59,7 @@ def load_all(engine) -> None:
         source = SOURCE_FOR_MARKET[market]
         path = latest_snapshot(source, slug)
         if path is None:
-            print(f"{slug}: no file in data/raw/{source}/, skipped")
+            print(f"{slug}: no file in data/raw/{source}/ or data/sample/{source}/, skipped")
             continue
 
         raw = pd.read_parquet(path)
