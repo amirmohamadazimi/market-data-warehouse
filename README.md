@@ -31,15 +31,6 @@ analytics layer (adjusted prices, returns, volatility, correlation) plus a small
 
 ---
 
-## Problem
-
-Every later project in this series (stylized facts, backtests, factor research)
-starts by re-downloading prices and re-inventing adjustments. That is slow,
-irreproducible, and the source of silent bugs: a CSV quietly missing three months,
-a capital increase read as a −53% crash, a symbol renamed.
-
-This repo solves that once: **one database, one schema, one refresh command.**
-Everything downstream reads from SQL, never from a CSV lying around in a folder.
 
 ## Data
 
@@ -110,7 +101,7 @@ symbols            1 ─── * daily_bars                 corporate_actions (d
    | price missing or ≤ 0; high < low; open/close outside [low, high] | move beyond the TSE limit of its era (event and reopen days skipped) |
    | TSE final price outside [min(low, base), max(high, base)] | gap > 10 days |
    | negative volume; dividend ≤ 0 or ≥ previous close | zero-volume day |
-   | Arabic ك/ي/ى left in `symbols` | active symbol with no bar for 7+ days |
+   |  | active symbol with no bar for 7+ days |
 
    The TSE limit changed over time (3% → 4% → 5% → 6% → 5% → 6% → 7% → 3%);
    `tse_price_limits.csv` records each era with its evidence (news or the data's
