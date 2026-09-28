@@ -4,7 +4,6 @@ An automated pipeline that ingests daily Tehran Stock Exchange and global bars i
 PostgreSQL, updates idempotently, checks its own data, and exposes a clean SQL
 analytics layer (adjusted prices, returns, volatility, correlation) plus a small app.
 
-**Status:** ✅ complete (Phase 01 project) · 2026-09-08 → 2026-09-28
 
 <!-- stats:start -->
 _Generated 2026-09-28 by `python -m warehouse readme` from the database._
