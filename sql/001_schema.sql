@@ -7,8 +7,10 @@ CREATE TABLE IF NOT EXISTS symbols (
     market      TEXT NOT NULL CHECK (market IN ('TSE', 'GLOBAL')),
     sector      TEXT,
     currency    TEXT,
+    slug        TEXT NOT NULL UNIQUE,
+    vendor_id   TEXT NOT NULL,
     is_active   BOOLEAN NOT NULL DEFAULT TRUE,
-    UNIQUE (ticker, market)
+    UNIQUE (market, vendor_id)
 );
 
 CREATE TABLE IF NOT EXISTS daily_bars (
@@ -18,10 +20,13 @@ CREATE TABLE IF NOT EXISTS daily_bars (
     high        NUMERIC,
     low         NUMERIC,
     close       NUMERIC,
-    adj_close   NUMERIC,
     volume      BIGINT,
     value       NUMERIC,
     trade_count INTEGER,
+    final_price NUMERIC,         -- TSE closing (final) price; NULL for GLOBAL
+    prev_final  NUMERIC,         -- TSE previous final price; NULL for GLOBAL
+    source      TEXT        NOT NULL,               -- adapter that loaded the row
+    ingested_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (symbol_id, date)
 );
 

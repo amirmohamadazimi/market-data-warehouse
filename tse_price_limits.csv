@@ -1,0 +1,10 @@
+start_date,price_limit,evidence
+2007-03-11,,"unknown: before 2009 normal days move up to 50%, so no limit can be read from the data; check skipped"
+2009-01-01,0.03,"inferred from data: 146 foolad days sit at a 3% ceiling in 2009"
+2009-12-16,0.04,"inferred from data: first repeated move above 3% (3.46%, 1388-09-25); 2010-2014 pile up at 4%"
+2015-06-07,0.05,"inferred from data: first move above 4% (4.24%, 1394-03-17); last 4% ceiling hits Jan-Feb 2015"
+2021-02-13,0.06,"inferred from data: first move above 5% (5.98%, 1399-11-25); last 6% move 2021-05-11; not in any web source"
+2021-06-01,0.05,"inferred from data: June 2021 max is 5.00%; exact day unknown, between 2021-05-12 and 2021-06-01"
+2022-04-18,0.06,"news: SEO widened the limit to 6% from 1401-01-29 (see design log entry 37); data: 5.98% on 2022-08-13"
+2022-10-24,0.07,"inferred from data: first move above 6% (6.68%, 1401-08-02); 7.00% on 2023-02-21; last above 6% on 2024-04-20; not in any web source"
+2024-09-07,0.03,"news: back to 3% around Mehr 1403; data: 3% pile-up from 2024-09-07 (1403-06-17), 16 days at 3% in Dec 2024"

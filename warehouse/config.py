@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql+psycopg2://postgres:postgres@localhost:5432/marketdata"
+    "DATABASE_URL", "postgresql+psycopg://postgres:postgres@localhost:5432/marketdata"
 )
 
-# TSE daily price limit, used by the quality check for implausible jumps.
-TSE_DAILY_LIMIT = 0.05
+# The TSE daily price limit changed over time (3% to 7%), so it is not a constant:
+# see tse_price_limits.csv, loaded into the tse_price_limits table by `init`.
