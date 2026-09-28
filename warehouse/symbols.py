@@ -90,18 +90,23 @@ def seed_symbols(engine, csv_path: Path) -> int:
     df = df.map(lambda x: normalize_fa(x) if isinstance(x, str) else x)
 
     df = df.astype(object).where(df.notna(), None)  # empty cells -> NULL, not NaN
+    if "analysis_from" not in df:  # csv files from before D19
+        df["analysis_from"] = None
 
     upsert_sql = text("""
-        INSERT INTO symbols (ticker, name, market, sector, currency, slug, vendor_id, is_active)
-        VALUES (:ticker, :name, :market, :sector, :currency, :slug, :vendor_id, :is_active)
+        INSERT INTO symbols (ticker, name, market, sector, currency, slug, vendor_id,
+                             is_active, analysis_from)
+        VALUES (:ticker, :name, :market, :sector, :currency, :slug, :vendor_id,
+                :is_active, :analysis_from)
         ON CONFLICT (market, vendor_id)
         DO UPDATE SET
-            ticker    = EXCLUDED.ticker,
-            name      = EXCLUDED.name,
-            sector    = EXCLUDED.sector,
-            currency  = EXCLUDED.currency,
-            slug      = EXCLUDED.slug,
-            is_active = EXCLUDED.is_active
+            ticker        = EXCLUDED.ticker,
+            name          = EXCLUDED.name,
+            sector        = EXCLUDED.sector,
+            currency      = EXCLUDED.currency,
+            slug          = EXCLUDED.slug,
+            is_active     = EXCLUDED.is_active,
+            analysis_from = EXCLUDED.analysis_from
     """)
 
     with engine.begin() as conn:

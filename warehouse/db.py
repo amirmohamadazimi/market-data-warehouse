@@ -15,10 +15,16 @@ def get_engine():
 
 
 def init_schema(engine) -> None:
-    """Execute the sql/ files in order (schema, views, quality). Must be re-runnable."""
+    """Run every numbered migration in order, then rebuild the views. Re-runnable.
+
+    Numbered files (001_schema.sql, 003_quality.sql, ...) only create or add to
+    tables. views.sql drops and recreates the views, so it runs last and can use
+    every column the migrations added. (002 was the views file before the rename.)
+    """
+    migrations = sorted(SQL_DIR.glob("[0-9][0-9][0-9]_*.sql"))
     with engine.begin() as conn:
-        for name in ("001_schema.sql", "002_views.sql", "003_quality.sql"):
-            conn.exec_driver_sql((SQL_DIR / name).read_text(encoding="utf-8"))
+        for path in [*migrations, SQL_DIR / "views.sql"]:
+            conn.exec_driver_sql(path.read_text(encoding="utf-8"))
 
 
 def _upsert(engine, table: str, key: tuple, rows, extra_set: str = "") -> int:

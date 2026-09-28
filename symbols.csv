@@ -1,11 +1,11 @@
-"ticker","name","market","sector","currency","slug","vendor_id","is_active"
-فولاد,فولاد مبارکه اصفهان,TSE,فلزات اساسی,IRR,foolad,"46348559193224090",true
-SPY,SPDR S&P 500 ETF Trust,GLOBAL,ETF,USD,spy,SPY,true
-فملی,ملی صنایع مس ایران,TSE,,IRR,fameli,35425587644337450,true
-شپنا,پالایش نفت اصفهان,TSE,,IRR,shepna,7745894403636165,true
-خودرو,ایران خودرو,TSE,,IRR,khodro,65883838195688438,true
-وبملت,بانک ملت,TSE,,IRR,vbmellat,778253364357513,true
-GLD,SPDR Gold Shares,GLOBAL,ETF,USD,gld,GLD,true
-SLX,VanEck Steel ETF,GLOBAL,ETF,USD,slx,SLX,true
-CPER,United States Copper Index Fund,GLOBAL,ETF,USD,cper,CPER,true
-BNO,United States Brent Oil Fund,GLOBAL,ETF,USD,bno,BNO,true
+"ticker","name","market","sector","currency","slug","vendor_id","is_active","analysis_from"
+فولاد,فولاد مبارکه اصفهان,TSE,فلزات اساسی,IRR,foolad,"46348559193224090",true,
+SPY,SPDR S&P 500 ETF Trust,GLOBAL,ETF,USD,spy,SPY,true,
+فملی,ملی صنایع مس ایران,TSE,,IRR,fameli,35425587644337450,true,
+شپنا,پالایش نفت اصفهان,TSE,,IRR,shepna,7745894403636165,true,
+خودرو,ایران خودرو,TSE,,IRR,khodro,65883838195688438,true,
+وبملت,بانک ملت,TSE,,IRR,vbmellat,778253364357513,true,
+GLD,SPDR Gold Shares,GLOBAL,ETF,USD,gld,GLD,true,
+SLX,VanEck Steel ETF,GLOBAL,ETF,USD,slx,SLX,true,
+CPER,United States Copper Index Fund,GLOBAL,ETF,USD,cper,CPER,true,2019-01-01
+BNO,United States Brent Oil Fund,GLOBAL,ETF,USD,bno,BNO,true,2019-01-01

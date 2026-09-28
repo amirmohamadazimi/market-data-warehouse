@@ -36,13 +36,17 @@ WHERE a.action_type = 'dividend';
 
 -- Backward adjustment: price(d) x product of k for every event AFTER d.
 -- SQL has no PRODUCT(), so EXP(SUM(LN(k))). Newest prices keep factor 1.
+--
+-- Rows before symbols.analysis_from are left out here (D19), so every view
+-- built on this one (returns, vol, correlation) starts at the trusted period.
+-- The filter sits outside the window, so the factors still see every event.
 CREATE VIEW v_adjusted_prices AS
 SELECT
-    symbol_id,
-    date,
-    raw_price,
-    adj_factor,
-    raw_price * adj_factor AS price
+    t.symbol_id,
+    t.date,
+    t.raw_price,
+    t.adj_factor,
+    t.raw_price * t.adj_factor AS price
 FROM (
     SELECT
         b.symbol_id,
@@ -63,7 +67,9 @@ FROM (
         PARTITION BY b.symbol_id ORDER BY b.date DESC
         ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
     )
-) t;
+) t
+JOIN symbols s ON s.symbol_id = t.symbol_id
+WHERE s.analysis_from IS NULL OR t.date >= s.analysis_from;
 
 -- Simple and log returns on adjusted prices, from one trading day to the next.
 -- Across a trading halt this is one return over the whole gap.

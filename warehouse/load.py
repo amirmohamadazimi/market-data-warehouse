@@ -50,11 +50,16 @@ def actions_yfinance(raw: pd.DataFrame) -> pd.DataFrame:
 ACTION_MAPPERS = {"yfinance": actions_yfinance}
 
 
-def load_all(engine) -> None:
-    """Load the latest snapshot of every symbol in `symbols` into daily_bars."""
+def load_all(engine) -> dict[str, int]:
+    """Load the latest snapshot of every symbol in `symbols` into daily_bars.
+
+    Returns rows inserted or changed per slug (bars + corporate actions), so a
+    second run on the same snapshots must return all zeros.
+    """
     with engine.connect() as conn:
         symbols = conn.execute(text("SELECT symbol_id, slug, market FROM symbols")).all()
 
+    changed = {}
     for symbol_id, slug, market in symbols:
         source = SOURCE_FOR_MARKET[market]
         path = latest_snapshot(source, slug)
@@ -71,8 +76,11 @@ def load_all(engine) -> None:
         bars = bars[CONTRACT].assign(symbol_id=symbol_id, source=source)
         n = upsert_bars(engine, bars)
         print(f"{slug}: {len(bars)} rows read from {path.parent.name}, {n} inserted or changed")
+        changed[slug] = n
 
         if source in ACTION_MAPPERS:
             actions = ACTION_MAPPERS[source](raw).assign(symbol_id=symbol_id)
             n = upsert_actions(engine, actions)
             print(f"{slug}: {len(actions)} corporate actions read, {n} inserted or changed")
+            changed[slug] += n
+    return changed

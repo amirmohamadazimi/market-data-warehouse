@@ -47,6 +47,8 @@ def main() -> None:
 
     sub.add_parser("sample", help="copy the newest raw snapshot of every symbol into data/sample/")
 
+    sub.add_parser("readme", help="refresh the README's numbers and chart from the database")
+
     args = parser.parse_args()
 
     if args.command == "init":
@@ -127,6 +129,13 @@ def main() -> None:
 
         for path in refresh_sample():
             print(f"sample: {path}")
+        return
+
+    if args.command == "readme":
+        from .db import get_engine
+        from .report import refresh_readme
+
+        print(f"README.md numbers refreshed, chart saved to {refresh_readme(get_engine())}")
         return
 
     raise NotImplementedError(f"command: {args.command}")

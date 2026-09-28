@@ -3,9 +3,38 @@
 import pytest
 
 
-@pytest.mark.skip(reason="not implemented yet")
 def test_update_is_idempotent():
-    raise NotImplementedError
+    """Loading the same snapshots a second time writes nothing at all.
+
+    The first load brings the database up to the newest snapshots (what `update`
+    does after fetching); the second must report 0 inserted or changed for every
+    symbol and leave the row count exactly the same.
+    """
+    from sqlalchemy import text
+    from sqlalchemy.exc import OperationalError
+
+    from warehouse.db import get_engine
+    from warehouse.load import load_all
+
+    engine = get_engine()
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1 FROM symbols LIMIT 1"))
+    except OperationalError:
+        pytest.skip("database not reachable")
+
+    def row_count():
+        with engine.connect() as conn:
+            return conn.execute(text("SELECT COUNT(*) FROM daily_bars")).scalar_one()
+
+    first = load_all(engine)
+    if not first:
+        pytest.skip("no snapshots to load; run init and update first")
+    rows = row_count()
+    second = load_all(engine)
+
+    assert second == {slug: 0 for slug in first}
+    assert row_count() == rows
 
 
 def test_no_duplicate_symbol_date_rows():

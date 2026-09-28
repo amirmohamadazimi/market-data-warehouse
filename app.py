@@ -125,7 +125,8 @@ with health:
 with symbols:
     st.dataframe(q("""
         SELECT s.slug, s.ticker, s.market, s.name, s.vendor_id, s.is_active,
-               COUNT(d.date) AS rows, MIN(d.date) AS first, MAX(d.date) AS last
+               COUNT(d.date) AS rows, MIN(d.date) AS first, MAX(d.date) AS last,
+               s.analysis_from
         FROM symbols s LEFT JOIN daily_bars d USING (symbol_id)
         GROUP BY s.symbol_id ORDER BY s.market DESC, s.slug
     """), hide_index=True, width="stretch")

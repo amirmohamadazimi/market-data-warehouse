@@ -9,6 +9,7 @@ authors = [
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "duckdb>=1.5.5",
+    "matplotlib>=3.11.2",
     "pandas>=3.0.5",
     "psycopg[binary]>=3.3.5",
     "pyarrow>=25.0.1",
