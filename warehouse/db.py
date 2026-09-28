@@ -15,9 +15,9 @@ def get_engine():
 
 
 def init_schema(engine) -> None:
-    """Execute sql/001_schema.sql then sql/002_views.sql. Must be re-runnable."""
+    """Execute the sql/ files in order (schema, views, quality). Must be re-runnable."""
     with engine.begin() as conn:
-        for name in ("001_schema.sql", "002_views.sql"):
+        for name in ("001_schema.sql", "002_views.sql", "003_quality.sql"):
             conn.exec_driver_sql((SQL_DIR / name).read_text(encoding="utf-8"))
 
 
